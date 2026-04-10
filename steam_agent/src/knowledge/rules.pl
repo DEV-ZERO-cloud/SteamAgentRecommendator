@@ -122,3 +122,69 @@ explanation(U, G, reason_discount) :-
 % Evitar que un juego sea similar a sí mismo
 not_similar(G) :-
     \+ similar_game(G, G).
+
+% ---------- Hechos base: familias de tags RPG ----------
+rpg_subgenre(action_rpg,    ['Action RPG','Hack and Slash','Action','Combat']).
+rpg_subgenre(jrpg,          ['JRPG','Anime','Turn-Based','Story Rich']).
+rpg_subgenre(open_world,    ['Open World','Exploration','Sandbox','Survival']).
+rpg_subgenre(tactical_rpg,  ['Tactical RPG','Strategy','Turn-Based Strategy']).
+rpg_subgenre(roguelike_rpg, ['Roguelike','Roguelite','Procedural Generation','Dungeon Crawler']).
+rpg_subgenre(crpg,          ['RPG','Party-Based RPG','Classic RPG','Isometric']).
+rpg_subgenre(soulslike,     ['Souls-like','Difficult','Dark Fantasy','Action']).
+
+% ---------- Penalizaciones / incompatibilidades ----------
+incompatible(free_to_play_only, Tag) :-
+    \+ Tag = 'Free to Play'.
+
+% ---------- Regla: un juego califica como RPG ----------
+is_rpg(Tags) :-
+    rpg_subgenre(_, SubTags),
+    member(T, SubTags),
+    member(T, Tags), !.
+
+% ---------- Regla: subgénero dominante del juego ----------
+dominant_subgenre(Tags, Subgenre) :-
+    rpg_subgenre(Subgenre, SubTags),
+    include(member_of(SubTags), Tags, Matches),
+    length(Matches, N),
+    N > 0, !.
+
+member_of(List, Elem) :- member(Elem, List).
+
+% ---------- Boost por alta coincidencia de tags ----------
+tag_overlap_score(GameTags, PreferredTags, Score) :-
+    include(member_of(PreferredTags), GameTags, Common),
+    length(Common, C),
+    length(PreferredTags, P),
+    (P > 0 -> Score is C / P ; Score is 0).
+
+% ---------- Penalización por tags no deseados ----------
+dislike_penalty(GameTags, DislikedTags, Penalty) :-
+    include(member_of(DislikedTags), GameTags, Bad),
+    length(Bad, B),
+    Penalty is B * 0.15.
+
+% ---------- Regla: juego recomendable ----------
+% Un juego es recomendable si:
+%   1. Es un RPG
+%   2. No contiene demasiados tags no deseados
+%   3. Cumple el filtro de precio (si aplica)
+recommendable(Tags, DislikedTags, MaxPrice, Price) :-
+    is_rpg(Tags),
+    dislike_penalty(Tags, DislikedTags, Penalty),
+    Penalty < 0.45,
+    (MaxPrice > 0 -> Price =< MaxPrice ; true).
+
+% ---------- Clasificación de precio ----------
+price_tier(Price, free)       :- Price =:= 0.
+price_tier(Price, budget)     :- Price > 0,  Price =< 10.
+price_tier(Price, mid_range)  :- Price > 10, Price =< 30.
+price_tier(Price, premium)    :- Price > 30, Price =< 60.
+price_tier(Price, deluxe)     :- Price > 60.
+
+% ---------- Clasificación de rating ----------
+rating_tier(R, masterpiece) :- R >= 9.0.
+rating_tier(R, excellent)   :- R >= 8.0, R < 9.0.
+rating_tier(R, good)        :- R >= 7.0, R < 8.0.
+rating_tier(R, mixed)       :- R >= 5.0, R < 7.0.
+rating_tier(R, poor)        :- R < 5.0.
