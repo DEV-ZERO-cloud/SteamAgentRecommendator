@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.models.game import Game
+from steam_agent.src.models.game import Game
 
 
 class Recommendation(BaseModel):
@@ -9,3 +9,5 @@ class Recommendation(BaseModel):
     preference_score: float     # score por preferencias/reglas
     explanation: str            # por qué se recomienda este juego
     rank: int                   # posición en la lista (1-based)
+    
+    model_config = {"arbitrary_types_allowed": True}

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 
 class AgentEvent(BaseModel):
@@ -13,8 +13,3 @@ class AgentEvent(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-
-# evitar importación circular
-from typing import Optional
-AgentEvent.model_rebuild()

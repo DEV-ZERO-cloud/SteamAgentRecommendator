@@ -27,7 +27,7 @@ from src.services.engine import RecommendationEngine
 # ── Configuración ─────────────────────────────────────────────────────────────
 CSV_PATH = os.getenv(
     "STEAM_CSV",
-    str(Path(__file__).resolve().parents[2] / "src" / "data" / "steam_rpg_games.csv"),
+    str(Path(__file__).resolve().parents[2] / "src" / "data" / "src" / "data" / "steam_rpg_games.csv"),
 )
 
 engine = RecommendationEngine()
@@ -36,6 +36,7 @@ engine = RecommendationEngine()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Carga el dataset al arrancar la API."""
+    print(CSV_PATH)
     csv = Path(CSV_PATH)
     if csv.exists():
         engine.load_data(csv)
