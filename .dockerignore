@@ -1,0 +1,42 @@
+# Control de versiones
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Entornos virtuales
+.venv
+venv
+env
+
+# Embeddings y datos pesados (se montan como volumen)
+src/embeddings/
+src/data/*.csv
+
+# Archivos de desarrollo
+.env
+.env.*
+*.env
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Tests
+.tests/
+
+# Documentación
+docs/
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
