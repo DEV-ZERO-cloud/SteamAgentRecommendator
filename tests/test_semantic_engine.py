@@ -65,10 +65,10 @@ class TestPrepareData:
         assert len(prepared.df) == 5
 
     def test_columnas_presentes(self, prepared):
-        assert "AppID" in prepared.df.columns
-        assert "Tags" in prepared.df.columns
-        assert "Genres" in prepared.df.columns
-        assert "_text" in prepared.df.columns
+        assert "appid" in prepared.df.columns
+        assert "tags" in prepared.df.columns
+        assert "genres" in prepared.df.columns
+        assert "name" in prepared.df.columns
 
     def test_tags_normalizados_a_minusculas(self, prepared):
         for valor in prepared.df["Tags"]:
@@ -76,8 +76,8 @@ class TestPrepareData:
 
     def test_text_field_combina_tags_y_generos(self, prepared):
         primera_fila = prepared.df.iloc[0]
-        assert primera_fila["Tags"] in primera_fila["_text"]
-        assert primera_fila["Genres"] in primera_fila["_text"]
+        assert primera_fila["tags"] in primera_fila["_text"]
+        assert primera_fila["genres"] in primera_fila["_text"]
 
     def test_vectorizer_ajustado(self, prepared):
         # Si el vectorizador está ajustado, tiene vocabulario
@@ -90,14 +90,14 @@ class TestPrepareData:
 
     def test_columnas_faltantes_lanza_error(self, tmp_path):
         csv_roto = tmp_path / "roto.csv"
-        csv_roto.write_text("AppID|Name\n1|Juego\n", encoding="utf-8")
+        csv_roto.write_text("appid|name\n1|Juego\n", encoding="utf-8")
         config = SemanticEngineConfig(csv_path=str(csv_roto))
         with pytest.raises(ValueError, match="Columnas faltantes"):
             PrepareData(config).prepare()
 
     def test_tags_vacios_no_rompen_pipeline(self, tmp_path):
         csv = tmp_path / "vacios.csv"
-        csv.write_text("AppID|Name|Tags|Genres\n1|Juego||rpg\n", encoding="utf-8")
+        csv.write_text("appid|name|tags|genres\n1|Juego||rpg\n", encoding="utf-8")
         config = SemanticEngineConfig(csv_path=str(csv))
         prepared = PrepareData(config).prepare()
         assert prepared.df.iloc[0]["Tags"] == ""
