@@ -71,7 +71,7 @@ class TestPrepareData:
         assert "name" in prepared.df.columns
 
     def test_tags_normalizados_a_minusculas(self, prepared):
-        for valor in prepared.df["Tags"]:
+        for valor in prepared.df["tags"]:
             assert valor == valor.lower()
 
     def test_text_field_combina_tags_y_generos(self, prepared):
@@ -100,7 +100,7 @@ class TestPrepareData:
         csv.write_text("appid|name|tags|genres\n1|Juego||rpg\n", encoding="utf-8")
         config = SemanticEngineConfig(csv_path=str(csv))
         prepared = PrepareData(config).prepare()
-        assert prepared.df.iloc[0]["Tags"] == ""
+        assert prepared.df.iloc[0]["tags"] == ""
 
 
 # ---------------------------------------------------------------------------
@@ -182,9 +182,9 @@ class TestSemanticEngineConfig:
     def test_valores_por_defecto(self, tmp_csv):
         config = SemanticEngineConfig(csv_path=tmp_csv)
         assert config.separator == "|"
-        assert config.tag_column == "Tags"
-        assert config.genre_column == "Genres"
-        assert config.id_column == "AppID"
+        assert config.tag_column == "tags"
+        assert config.genre_column == "genres"
+        assert config.id_column == "appid"
         assert config.default_top_k == 20
         assert config.default_min_score == 0.05
 
