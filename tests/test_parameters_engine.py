@@ -15,7 +15,10 @@ from models.game import Game
 from dotenv import load_dotenv
 
 load_dotenv()
-PARAMETERS_PATH = os.getenv("PARAMETERS_PATH")
+PARAMETERS_PATH = os.getenv(
+    "PARAMETERS_PATH",
+    "src/knowledge/parameters.json"
+)
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

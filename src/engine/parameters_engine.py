@@ -155,11 +155,16 @@ class ParametersEngine:
 
     @staticmethod
     def _load_weights(path: str | Path) -> tuple[int, int, int, int]:
-        """
-        Lee parameters.json y retorna (w_date, w_price, w_rate, w_rec).
-        Orden según 'structure': ["date","price","positive_rate","recommendations"]
-        """
+        if path is None:
+            raise ValueError("parameters_path no puede ser None")
+
+        path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError(f"No existe el archivo: {path}")
+
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        w = data["default_condition"]   # [10, 40, 30, 20]
+
+        w = data["default_condition"]
         return w[0], w[1], w[2], w[3]
