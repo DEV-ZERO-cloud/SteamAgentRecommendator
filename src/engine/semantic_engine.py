@@ -52,7 +52,7 @@ class SemanticEngine:
     No sabe cómo se cargó ni cómo se indexó el corpus.
 
     Uso típico desde el pipeline:
-        config   = SemanticEngineConfig(csv_path="steam_rpg.csv")
+        config   = SemanticEngineConfig(csv_path="src\data\steam_rpg.csv")
         prepared = PrepareData(config).prepare()
         engine   = SemanticEngine(config, prepared)
 

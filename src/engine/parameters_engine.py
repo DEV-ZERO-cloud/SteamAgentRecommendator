@@ -74,7 +74,7 @@ class ParametersEngine:
     """
 
     def __init__(self, parameters_path: str | Path):
-        self._weights = self._load_weights(Path(parameters_path))
+        self._weights = self._load_weights(parameters_path)
 
     # ── API pública ───────────────────────────────────────────────────────────
 
