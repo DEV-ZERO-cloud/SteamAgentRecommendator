@@ -11,4 +11,4 @@ python-dotenv
 tqdm
 torch
 transformers
-kaggle
+pytest

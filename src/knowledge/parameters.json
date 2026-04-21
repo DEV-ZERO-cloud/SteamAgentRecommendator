@@ -1,0 +1,10 @@
+{
+    "structure":["date","price","positive_rate","recommendations"],
+    "higher_condition":40,
+    "lower_condition":10,
+    "default_condition":[10,40,30,20],
+    "isPriceTrue":40,
+    "isPositiveRateTrue":30,
+    "isDateTrue":10,
+    "isRecommendation":20
+}

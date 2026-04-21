@@ -7,7 +7,7 @@ played(U, G) :-
     performedBy(I, U),
     involvesGame(I, G).
 
-% Alto engagement (más de 10 horas)
+% Alto engagement más de 10 horas
 high_engagement(I) :-
     PlaySession(I),
     duration(I, D),
