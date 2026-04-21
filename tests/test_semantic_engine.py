@@ -23,7 +23,7 @@ CSV_PATH = os.getenv("CSV_PATH")
 # Fixtures
 # ---------------------------------------------------------------------------
 
-MOCK_CSV_DATA = """AppID|Name|Tags|Genres
+MOCK_CSV_DATA = """appid|name|tags|genres
 1|The Witcher 3|open-world;story-rich;fantasy;rpg|rpg;adventure
 2|Dark Souls|difficult;action;dark-fantasy;rpg|rpg;action
 3|Stardew Valley|farming;relaxing;casual;simulation|simulation;indie
