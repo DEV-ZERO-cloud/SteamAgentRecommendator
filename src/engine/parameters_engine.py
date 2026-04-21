@@ -21,7 +21,10 @@ from pathlib import Path
 from typing import Optional
 
 from models.game import Game
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # ── Modelo de filtros (viene del body de la request) ─────────────────────────
 
@@ -70,8 +73,8 @@ class ParametersEngine:
         scores = engine.score(games, semantic_scores, filters)
     """
 
-    def __init__(self, parameters_path: str | Path = "src/data/parameters.json"):
-        self._weights = self._load_weights(parameters_path)
+    def __init__(self, parameters_path: str | Path):
+        self._weights = self._load_weights(Path(parameters_path))
 
     # ── API pública ───────────────────────────────────────────────────────────
 

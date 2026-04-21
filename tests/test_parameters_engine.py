@@ -9,11 +9,13 @@ Juego real: Project Zomboid (app_id=108600)
     recommendations_quantity = 0.0
 """
 import pytest
+import os
 from engine.parameters_engine import ParametersEngine, ScoreFilters
 from models.game import Game
+from dotenv import load_dotenv
 
-PARAMETERS_PATH = "src/data/parameters.json"
-
+load_dotenv()
+PARAMETERS_PATH = os.getenv("CSV_PATH")
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

@@ -11,4 +11,5 @@ services:
     environment:
       PYTHONPATH: src/
       CSV_PATH: src/data/steam_rpg_games.csv
+      PARAMETERS_PATH: src/knowledge/parameters.json
     restart: unless-stopped

@@ -18,6 +18,7 @@ COPY src/ ./src/
 # Variables de entorno por defecto
 ENV PYTHONPATH=src/
 ENV CSV_PATH=src/data/steam_rpg_games.csv
+ENV PARAMETERS_PATH=src/knowledge/parameters.jsonPARAMETERS_PATH=src/knowledge/parameters.json
 
 EXPOSE 8000
 

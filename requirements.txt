@@ -12,3 +12,4 @@ tqdm
 torch
 transformers
 pytest
+dotenv

@@ -19,7 +19,7 @@ class PipelineRecommendation:
 
     def __init__(self):
         csv_path        = os.getenv("CSV_PATH")
-        parameters_path = os.getenv("PARAMETERS_PATH", "src/data/parameters.json")
+        parameters_path = os.getenv("PARAMETERS_PATH")
 
         # Paso 2: motor semántico TF-IDF
         config = SemanticEngineConfig(
@@ -36,7 +36,7 @@ class PipelineRecommendation:
         self.knowledge_engine.build()
 
         # Paso 4: motor de scoring por parameters
-        self.parameters_engine = ParametersEngine(parameters_path)
+        self.parameters_engine = ParametersEngine(parameters_path=parameters_path)
 
     def recommend(self, query: str, top_k: int = 5, filters: ScoreFilters = None):
         # Paso 1: query viene de la request

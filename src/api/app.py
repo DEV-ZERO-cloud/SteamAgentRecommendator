@@ -29,6 +29,10 @@ app.add_middleware(
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
 
+class SemmanticRequest(BaseModel):
+    query:str
+    top_k: int
+
 class RecommendationRequest(BaseModel):
     query: str
     top_k: int = 5
@@ -70,7 +74,7 @@ def recommend(request: RecommendationRequest):
 
 
 @app.post("/semantic_engine/search")
-def search_semantic(request: RecommendationRequest):
+def search_semantic(request: SemmanticRequest):
     tags = [tag.strip() for tag in request.query.split(",")]
     results = pipeline.semantic_engine.search(tags=tags, top_k=request.top_k)
     return {"query": request.query, "results": results}
