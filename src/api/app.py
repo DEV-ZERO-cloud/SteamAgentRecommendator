@@ -65,8 +65,10 @@ def recommend(request: RecommendationRequest):
         isRecommendations = request.isRecommendations,
         MinRecommendations = request.MinRecommendations,
     )
+    tags = [tag.strip() for tag in request.query.split(",")]
+    
     results = pipeline.recommend(
-        query=request.query,
+        query=tags,
         top_k=request.top_k,
         filters=filters,
     )

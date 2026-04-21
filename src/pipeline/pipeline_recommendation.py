@@ -42,7 +42,7 @@ class PipelineRecommendation:
         # Paso 1: query viene de la request
 
         # Paso 2: búsqueda semántica → {app_id: similarity}
-        semantic_results = self.semantic_engine.search(tags=query.split(), top_k=200)
+        semantic_results = self.semantic_engine.search(tags=query, top_k=top_k)
         semantic_scores  = dict(semantic_results)
 
         # Paso 3: IDs → objetos Game
