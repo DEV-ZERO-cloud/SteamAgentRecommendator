@@ -1,43 +1,15 @@
-version: "29.3.1"
-
 services:
-
-  # ── Agente recomendador principal ──────────────────────────────────────────
-  recommender:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: rpg-recommender
-    restart: unless-stopped
-
+  api:
+    build: .
     ports:
       - "8000:8000"
-
-    environment:
-      EMBED_MODEL: sentence-transformers/all-MiniLM-L6-v2
-      # Nivel de logs
-      LOG_LEVEL: info
-
     volumes:
-      - embeddings_data:/app/src/embeddings
-      - .data/steam_rpg_games.csv
-      - ./data:/app/src/data:ro
-      - ./src/recommender/rules.pl:/app/src/recommender/rules.pl:ro
-
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s   # el engine tarda en cargar embeddings
-
-    networks:
-      - rpg-net
-
-volumes:
-  embeddings_data:
-  # postgres_data:
-
-networks:
-  rpg-net:
-    driver: bridge
+      - ./src/data:/app/src/data         # CSV persiste fuera del contenedor
+      - ./src/embeddings:/app/src/embeddings  # índice FAISS persiste en disco
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: src/
+      CSV_PATH: src/data/steam_rpg_games.csv
+      PARAMETERS_PATH: src/knowledge/parameters.json
+    restart: unless-stopped
