@@ -111,7 +111,7 @@ class KnowledgeEngine:
     def __init__(
         self,
         csv_path: str | Path,
-        index_dir: str | Path = "embeddings",
+        index_dir: str | Path = "src/embeddings",
     ):
         self.csv_path  = Path(csv_path)
         self.index_dir = Path(index_dir)

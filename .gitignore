@@ -1,2 +1,4 @@
 \venv
 .env
+\src\embeddings\
+\tests\
