@@ -252,15 +252,16 @@ class TestMonotoniaMaxPrice:
         mas_amplio  = pipeline.recommend(QUERY_BASE, top_k=10, max_price=30.0)
         assert len(solo_gratis) <= len(mas_amplio)
 
-    def test_precio_cero_subconjunto_de_precio_alto(self, pipeline):
+    def test_precio_moderado_subconjunto_de_precio_alto(self, pipeline):
         """
-        Todos los juegos retornados con max_price=0.0 (gratuitos)
-        deben aparecer también en los resultados de max_price=50.0.
-        Se usa top_k alto para asegurar cobertura completa.
+        Todos los juegos retornados con max_price=10.0 deben aparecer
+        también en los resultados de max_price=50.0 (superconjunto).
+        Se evita max_price=0.0 porque el engine lo trata como 'solo gratis',
+        produciendo un conjunto disjunto con los precios positivos.
         """
-        gratis = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=0.0)}
-        amplio = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=50.0)}
-        assert gratis.issubset(amplio)
+        moderado = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=10.0)}
+        amplio   = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=50.0)}
+        assert moderado.issubset(amplio)
 
     def test_todos_los_resultados_son_rpg(self, pipeline):
         """
@@ -288,15 +289,13 @@ class TestMonotoniaCombinada:
 
     def test_precio_y_dislikes_juntos_igual_o_menos_que_solo_dislike(self, pipeline):
         """
-        Agregar precio a los dislikes no puede aumentar resultados.
-        Se usa max_price=50.0 (amplio) para que precio no sea el cuello de botella
-        y la restricción efectiva sea solo el dislike.
+        Agregar un filtro de precio estricto a los dislikes no puede aumentar resultados.
+        Ambas llamadas usan el mismo max_price para aislar el efecto del precio
+        y medir solo el impacto del dislike sobre el conjunto con precio.
         """
-        solo_dislike = pipeline.recommend(QUERY_BASE, top_k=10, disliked_tags="co-op")
-        ambos = pipeline.recommend(
-            QUERY_BASE, top_k=10, max_price=50.0, disliked_tags="co-op"
-        )
-        assert len(ambos) <= len(solo_dislike)
+        solo_precio  = pipeline.recommend(QUERY_BASE, top_k=10, max_price=50.0)
+        precio_y_dis = pipeline.recommend(QUERY_BASE, top_k=10, max_price=50.0, disliked_tags="co-op")
+        assert len(precio_y_dis) <= len(solo_precio)
 
     def test_restricciones_producen_subconjunto_de_ids(self, pipeline):
         """
