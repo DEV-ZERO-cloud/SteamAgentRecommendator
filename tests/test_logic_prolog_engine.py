@@ -10,13 +10,13 @@ from models.game import Game
 
 
 def make_game(app_id: int, title: str, tags: list[str], price: float, rating: float) -> Game:
-    g = Game()
-    g.app_id = app_id
-    g.title  = title
-    g.tags   = tags
-    g.price  = price
-    g.rating = rating
-    return g
+    return Game(
+        app_id = app_id,
+        name   = title,
+        tags   = tags,
+        price  = price,
+        rating = rating,
+    )
 
 GAMES = {
     1: make_game(1, "Baldur's Gate 3",       ["rpg", "turn-based", "fantasy", "open world"], 59.99, 9.5),
