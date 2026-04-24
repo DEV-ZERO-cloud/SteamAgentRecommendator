@@ -27,11 +27,11 @@ GAMES = {
 }
 
 SCORED = [
-    GameScore(app_id=1, parameter_score=0.92, semantic_score=0.88),
-    GameScore(app_id=2, parameter_score=0.87, semantic_score=0.82),
-    GameScore(app_id=3, parameter_score=0.75, semantic_score=0.70),
-    GameScore(app_id=4, parameter_score=0.65, semantic_score=0.60),  # no RPG → debe filtrarse
-    GameScore(app_id=5, parameter_score=0.60, semantic_score=0.55),
+    GameScore(app_id=1, name="Baldur's Gate 3",        semantic_score=0.88, parameter_score=0.92, date_flag=1, price_flag=0, positive_rate_flag=1, recommendations_flag=1),
+    GameScore(app_id=2, name="Divinity Original Sin 2", semantic_score=0.82, parameter_score=0.87, date_flag=1, price_flag=1, positive_rate_flag=1, recommendations_flag=1),
+    GameScore(app_id=3, name="Hades",                   semantic_score=0.70, parameter_score=0.75, date_flag=1, price_flag=1, positive_rate_flag=1, recommendations_flag=1),
+    GameScore(app_id=4, name="Dead Space",              semantic_score=0.60, parameter_score=0.65, date_flag=1, price_flag=1, positive_rate_flag=1, recommendations_flag=0),
+    GameScore(app_id=5, name="Stardew Valley",          semantic_score=0.55, parameter_score=0.60, date_flag=1, price_flag=1, positive_rate_flag=1, recommendations_flag=1),
 ]
 
 QUERY_TAGS   = ["rpg", "fantasy", "turn-based", "open world"]
