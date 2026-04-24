@@ -60,6 +60,12 @@ Detener stack:
 ```bash
 docker compose down
 ```
+
+```
+Correr API
+uvicorn src.api.app:app --reload
+```
+
 ---
 
 ## Uso del Proyecto
