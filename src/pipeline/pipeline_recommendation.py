@@ -53,7 +53,7 @@ class PipelineRecommendation:
         query: str,
         top_k: int = 5,
         filters: ScoreFilters | None = None,
-        disliked_tags: list[str] | None = None,
+        disliked_tags: str | None = None,
         max_price: float = 0.0,
     ) -> list[EnrichedScore]:
         """
@@ -74,7 +74,8 @@ class PipelineRecommendation:
         # Paso 2: búsqueda semántica → {app_id: similarity}
         # Se recuperan más candidatos de los necesarios para que Prolog tenga
         # material suficiente (se filtrará en Paso 5).
-        query_tags = query if isinstance(query, list) else query.split()
+        query_tags = query if isinstance(query, list) else [t.strip() for t in query.split(",")]
+
         semantic_results = self.semantic_engine.search(tags=query_tags, top_k=top_k * 5)
         semantic_scores  = dict(semantic_results)
 
@@ -86,10 +87,9 @@ class PipelineRecommendation:
 
         # Paso 5: motor lógico → filtrar + enriquecer → [EnrichedScore, ...]
         games_by_id = {g.app_id: g for g in games}
-        query_tags  = query if isinstance(query, list) else query.split()
 
         # Configurar preferencias del motor lógico para esta request
-        self.prolog_engine.disliked_tags = {t.lower().strip() for t in (disliked_tags or [])}
+        self.prolog_engine.disliked_tags = {t.strip() for t in disliked_tags.split(",")} if disliked_tags else set()
         self.prolog_engine.max_price = max_price
 
         enriched = self.prolog_engine.filter(scored, games_by_id, query_tags)

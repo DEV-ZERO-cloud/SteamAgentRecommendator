@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from models.game import Game
 from engine.parameters_engine import ScoreFilters
-from pipeline.pipeline_recommendation import pipeline
+from pipeline.pipeline_recommendation import PipelineRecommendation
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -26,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+pipeline = PipelineRecommendation()
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,7 @@ class SemmanticRequest(BaseModel):
 
 class RecommendationRequest(BaseModel):
     query: str
+    disliked_tags: str
     top_k: int = 5
     # Filtros ScoreFilters
     isPrice: bool = False
@@ -54,23 +56,24 @@ class RecommendationRequest(BaseModel):
 @app.post("/recommend")
 def recommend(request: RecommendationRequest):
     filters = ScoreFilters(
-        isPrice          = request.isPrice,
-        MinPrice         = request.MinPrice,
-        MaxPrice         = request.MaxPrice,
-        isPositiveRate   = request.isPositiveRate,
-        MinPositiveRate  = request.MinPositiveRate,
-        isDate           = request.isDate,
-        MinYear          = request.MinYear,
-        MaxYear          = request.MaxYear,
-        isRecommendations = request.isRecommendations,
+        isPrice            = request.isPrice,
+        MinPrice           = request.MinPrice,
+        MaxPrice           = request.MaxPrice,
+        isPositiveRate     = request.isPositiveRate,
+        MinPositiveRate    = request.MinPositiveRate,
+        isDate             = request.isDate,
+        MinYear            = request.MinYear,
+        MaxYear            = request.MaxYear,
+        isRecommendations  = request.isRecommendations,
         MinRecommendations = request.MinRecommendations,
     )
-    tags = [tag.strip() for tag in request.query.split(",")]
-    
+
     results = pipeline.recommend(
-        query=tags,
-        top_k=request.top_k,
-        filters=filters,
+        query         = request.query,
+        disliked_tags = request.disliked_tags,
+        top_k         = request.top_k,
+        filters       = filters,
+        max_price     = request.MaxPrice,
     )
     return {"query": request.query, "results": results}
 

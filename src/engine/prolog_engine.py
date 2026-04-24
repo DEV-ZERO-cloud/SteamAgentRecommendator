@@ -25,13 +25,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import Optional
 
-from engine import motor_logico
+from engine import logic_engine
 from engine.parameters_engine import GameScore
 from models.game import Game
 
 logger = logging.getLogger(__name__)
-
-SYNTHETIC_USER = "query_user"
 
 
 # =============================================================================
@@ -68,7 +66,7 @@ class PrologEngine:
         disliked_tags: list[str] | None = None,
         max_price: float = 0.0,
     ):
-        self.disliked_tags: set[str] = {t.lower().strip() for t in (disliked_tags or [])}
+        self.disliked_tags = {t.lower().strip() for t in disliked_tags} if disliked_tags else set()
         self.max_price = max_price
 
     def filter(
@@ -107,11 +105,11 @@ class PrologEngine:
             rating_by_gid[gid] = float(game.rating)
 
         # § 3 — similaridad sobre candidatos
-        similar_pairs = motor_logico.compute_similar_pairs(tags_by_gid)
+        similar_pairs = logic_engine.compute_similar_pairs(tags_by_gid)
 
         # § 5 — candidatos válidos (usuario sintético: played_gids vacío)
         played_gids: set[str] = set()
-        valid_gids = motor_logico.get_candidates(
+        valid_gids = logic_engine.get_candidates(
             liked_tags, tags_by_gid, similar_pairs, played_gids
         )
 
@@ -140,19 +138,19 @@ class PrologEngine:
             rating    = rating_by_gid.get(gid, 0.0)
 
             # § 7 — filtro is_recommendable (RPG + dislike + precio)
-            if not motor_logico.is_recommendable(
+            if not logic_engine.is_recommendable(
                 game_tags, self.disliked_tags, self.max_price, price
             ):
                 continue
 
             # § 7 — métricas de calidad
-            overlap     = motor_logico.tag_overlap_score(game_tags, liked_tags)
-            price_tier  = motor_logico.get_price_tier(price)
-            rating_tier = motor_logico.get_rating_tier(rating)
-            is_rpg_flag = motor_logico.is_rpg(game_tags)
+            overlap     = logic_engine.tag_overlap_score(game_tags, liked_tags)
+            price_tier  = logic_engine.get_price_tier(price)
+            rating_tier = logic_engine.get_rating_tier(rating)
+            is_rpg_flag = logic_engine.is_rpg(game_tags)
 
             # § 8 — explicaciones
-            explanations = motor_logico.get_explanations(
+            explanations = logic_engine.get_explanations(
                 gid, liked_tags, tags_by_gid, similar_pairs, played_gids
             )
 

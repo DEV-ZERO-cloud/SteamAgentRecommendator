@@ -15,21 +15,20 @@ CAPAS:
     7. price_tier / rating_tier + tag_overlap_score / dislike_penalty
     8. recommend / explanation
 """
-
 from __future__ import annotations
+from dotenv import load_dotenv
 
+import os
+import pandas as pd
+
+load_dotenv()
 # =============================================================================
 # § 4 — TAGS CANÓNICOS RPG (lowercase, igual que los tags normalizados del CSV)
 # =============================================================================
 
-RPG_TAGS: set[str] = {
-    'rpg', 'action rpg', 'jrpg', 'souls-like', 'soulslike',
-    'tactical rpg', 'party-based rpg', 'classic rpg',
-    'roguelike', 'roguelite', 'dungeon crawler',
-    'hack and slash', 'turn-based', 'turn-based strategy',
-    'dark fantasy', 'open world rpg', 'story rich',
-}
+TAGS_PATH = os.getenv("TAGS_PATH")
 
+rpg_tags = set(pd.read_csv(TAGS_PATH, sep="|")["name"].str.lower())
 
 # =============================================================================
 # § 3 — SIMILARIDAD
@@ -62,12 +61,12 @@ def compute_similar_pairs(tags_by_gid: dict[str, set[str]]) -> set[tuple[str, st
 
 def is_rpg(game_tags: set[str]) -> bool:
     """True si el juego tiene al menos un tag del dominio RPG."""
-    return bool(game_tags & RPG_TAGS)
+    return bool(game_tags & rpg_tags)
 
 
 def get_subgenres(game_tags: set[str]) -> set[str]:
     """Retorna los subgéneros RPG que tiene el juego."""
-    return game_tags & RPG_TAGS
+    return game_tags & rpg_tags
 
 
 # =============================================================================
