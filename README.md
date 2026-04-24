@@ -41,6 +41,26 @@ Desarrollar un agente inteligente capaz de:
 - Procesamiento de datos  
 
 ---
+## Instrucciones
+
+Levantar contenedores:
+
+```bash
+docker compose up -d --build
+```
+
+Ver logs en vivo:
+
+```bash
+docker compose logs -f
+```
+
+Detener stack:
+
+```bash
+docker compose down
+```
+---
 
 ## Uso del Proyecto
 
