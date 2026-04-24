@@ -27,8 +27,15 @@ load_dotenv()
 # =============================================================================
 
 TAGS_PATH = os.getenv("TAGS_PATH")
+_rpg_tags: set[str] | None = None
 
-rpg_tags = set(pd.read_csv(TAGS_PATH, sep="|")["name"].str.lower())
+def _get_rpg_tags() -> set[str]:
+    global _rpg_tags
+    if _rpg_tags is None:
+        if not TAGS_PATH:
+            raise EnvironmentError("TAGS_PATH no está definida en el entorno.")
+        _rpg_tags = {row.lower() for row in pd.read_csv(TAGS_PATH, sep="|")["name"]}
+    return _rpg_tags
 
 # =============================================================================
 # § 3 — SIMILARIDAD
@@ -60,14 +67,10 @@ def compute_similar_pairs(tags_by_gid: dict[str, set[str]]) -> set[tuple[str, st
 # =============================================================================
 
 def is_rpg(game_tags: set[str]) -> bool:
-    """True si el juego tiene al menos un tag del dominio RPG."""
-    return bool(game_tags & rpg_tags)
-
+    return bool(game_tags & _get_rpg_tags())
 
 def get_subgenres(game_tags: set[str]) -> set[str]:
-    """Retorna los subgéneros RPG que tiene el juego."""
-    return game_tags & rpg_tags
-
+    return game_tags & _get_rpg_tags()
 
 # =============================================================================
 # § 5 — CANDIDATOS

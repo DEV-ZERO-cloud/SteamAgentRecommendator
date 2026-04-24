@@ -25,6 +25,11 @@ jobs:
       - name: Run tests
         env:
           CSV_PATH: src/data/steam_rpg_games.csv
+          TAGS_PATH: src/data/tags.csv
+          CATEGORIES_PATH: src/data/categories.csv
+          GENRES_PATH: src/data/genres.csv
+          PARAMETERS_PATH: src/knowledge/parameters.json
+          EMBED_MODEL: sentence-transformers/all-MiniLM-L6-v2
           PYTHONPATH: src/
         run: 
           pytest tests/ -v --tb=short
