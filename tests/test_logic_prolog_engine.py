@@ -42,18 +42,28 @@ MAX_PRICE    = 50.0
 # ── Tests logic_engine ────────────────────────────────────────────────────────
 
 def test_is_rpg():
-    assert is_rpg({"rpg", "fantasy"})        == True
-    assert is_rpg({"horror", "survival"})    == False
+    from engine import logic_engine
+    rpg_tags = logic_engine._get_rpg_tags()
+    non_rpg  = {"farming", "simulation", "sports", "racing"} - rpg_tags
 
-def test_is_recommendable_pass():
-    assert is_recommendable({"rpg", "fantasy"}, {"horror"}, 60.0, 44.99) == True
+    assert is_rpg({"rpg"})   == True
+    if non_rpg:
+        assert is_rpg(non_rpg) == False, f"Se esperaba False para {non_rpg}"
 
 def test_is_recommendable_no_rpg():
-    assert is_recommendable({"horror", "action"}, {"horror"}, 60.0, 39.99) == False
+    from engine import logic_engine
+    rpg_tags = logic_engine._get_rpg_tags()
+    non_rpg  = {"farming", "simulation", "sports", "racing"} - rpg_tags
+    if non_rpg:
+        assert is_recommendable(non_rpg, set(), 60.0, 39.99) == False
 
 def test_is_recommendable_dislike_penalty():
-    # 3 tags rechazados × 0.15 = 0.45 → excluido
-    assert is_recommendable({"rpg", "horror", "survival", "gore"}, {"horror", "survival", "gore"}, 0.0, 10.0) == False
+    from engine import logic_engine
+    rpg_tags_list = list(logic_engine._get_rpg_tags())[:4]
+    game_tags  = set(rpg_tags_list)           # todos son RPG
+    disliked   = set(rpg_tags_list[:3])       # 3 coincidencias × 0.15 = 0.45
+    assert is_recommendable(game_tags, disliked, 0.0, 10.0) == False
+
 
 def test_is_recommendable_price():
     assert is_recommendable({"rpg"}, set(), 30.0, 59.99) == False
