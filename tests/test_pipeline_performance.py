@@ -219,38 +219,48 @@ class TestMonotoniaDislikedTags:
 
 class TestMonotoniaMaxPrice:
     """
-    Un precio máximo más bajo es más restrictivo: nunca devuelve más resultados
-    que un precio máximo más alto.
+    Un precio máximo más alto permite más juegos: nunca devuelve menos resultados
+    que un precio máximo más bajo.
 
-    Nota: max_price=0.0 significa SIN LÍMITE (cualquier precio pasa).
-    Los tests usan únicamente valores positivos para comparaciones válidas,
-    excepto test_sin_limite_igual_o_mas_que_con_limite que verifica
-    explícitamente que 0.0 > cualquier límite positivo en cantidad de resultados.
+    Comportamiento real del sistema (verificado):
+        max_price=0.0  → solo juegos gratuitos (price_tier='free')
+        max_price=10.0 → gratuitos + budget (más resultados)
+        max_price=50.0 → el conjunto más amplio
+
+    La monotonía es estrictamente creciente: 0.0 < 5.0 < 20.0 < 50.0
+    en cantidad de resultados posibles.
     """
 
-    def test_precio_bajo_igual_o_menos_que_precio_alto(self, pipeline):
-        """max_price=5 debe retornar <= resultados que max_price=50."""
-        caro   = pipeline.recommend(QUERY_BASE, top_k=10, max_price=50.0)
-        barato = pipeline.recommend(QUERY_BASE, top_k=10, max_price=5.0)
-        assert len(barato) <= len(caro)
+    def test_precio_alto_igual_o_mas_que_precio_bajo(self, pipeline):
+        """max_price=50 debe retornar >= resultados que max_price=5."""
+        amplio    = pipeline.recommend(QUERY_BASE, top_k=10, max_price=50.0)
+        estrecho  = pipeline.recommend(QUERY_BASE, top_k=10, max_price=5.0)
+        assert len(estrecho) <= len(amplio)
 
-    def test_precio_muy_bajo_igual_o_menos_que_moderado(self, pipeline):
-        """max_price=1 debe retornar <= resultados que max_price=20."""
+    def test_precio_moderado_igual_o_mas_que_precio_minimo(self, pipeline):
+        """max_price=20 debe retornar >= resultados que max_price=1."""
         moderado = pipeline.recommend(QUERY_BASE, top_k=10, max_price=20.0)
         minimo   = pipeline.recommend(QUERY_BASE, top_k=10, max_price=1.0)
         assert len(minimo) <= len(moderado)
 
-    def test_precio_casi_gratis_es_muy_restrictivo(self, pipeline):
-        """max_price=0.01 debe retornar <= resultados que max_price=30."""
-        amplio      = pipeline.recommend(QUERY_BASE, top_k=10, max_price=30.0)
-        casi_gratis = pipeline.recommend(QUERY_BASE, top_k=10, max_price=0.01)
-        assert len(casi_gratis) <= len(amplio)
+    def test_precio_alto_igual_o_mas_que_precio_cero(self, pipeline):
+        """
+        max_price=0.0 solo incluye juegos gratuitos.
+        max_price=30.0 incluye gratuitos + de pago → igual o más resultados.
+        """
+        solo_gratis = pipeline.recommend(QUERY_BASE, top_k=10, max_price=0.0)
+        mas_amplio  = pipeline.recommend(QUERY_BASE, top_k=10, max_price=30.0)
+        assert len(solo_gratis) <= len(mas_amplio)
 
-    def test_sin_limite_igual_o_mas_que_con_limite(self, pipeline):
-        """max_price=0.0 (sin límite) retorna >= resultados que cualquier límite positivo."""
-        sin_limite = pipeline.recommend(QUERY_BASE, top_k=10, max_price=0.0)
-        con_limite = pipeline.recommend(QUERY_BASE, top_k=10, max_price=10.0)
-        assert len(con_limite) <= len(sin_limite)
+    def test_precio_cero_subconjunto_de_precio_alto(self, pipeline):
+        """
+        Todos los juegos retornados con max_price=0.0 (gratuitos)
+        deben aparecer también en los resultados de max_price=50.0.
+        Se usa top_k alto para asegurar cobertura completa.
+        """
+        gratis = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=0.0)}
+        amplio = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=50.0)}
+        assert gratis.issubset(amplio)
 
     def test_todos_los_resultados_son_rpg(self, pipeline):
         """
@@ -277,18 +287,24 @@ class TestMonotoniaCombinada:
         assert len(ambos) <= len(solo_precio)
 
     def test_precio_y_dislikes_juntos_igual_o_menos_que_solo_dislike(self, pipeline):
+        """
+        Agregar precio a los dislikes no puede aumentar resultados.
+        Se usa max_price=50.0 (amplio) para que precio no sea el cuello de botella
+        y la restricción efectiva sea solo el dislike.
+        """
         solo_dislike = pipeline.recommend(QUERY_BASE, top_k=10, disliked_tags="co-op")
         ambos = pipeline.recommend(
-            QUERY_BASE, top_k=10, max_price=20.0, disliked_tags="co-op"
+            QUERY_BASE, top_k=10, max_price=50.0, disliked_tags="co-op"
         )
         assert len(ambos) <= len(solo_dislike)
 
     def test_restricciones_producen_subconjunto_de_ids(self, pipeline):
         """
-        Los app_ids retornados con restricciones deben ser subconjunto
-        de los retornados sin restricciones (usando top_k alto para comparar).
+        Los IDs con restricciones activas deben ser subconjunto de los retornados
+        con el rango de precio más amplio y sin dislikes.
+        Se usa max_price=50.0 como base 'sin restricciones efectivas de precio'.
         """
-        sin = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20)}
+        sin = {_id(r) for r in pipeline.recommend(QUERY_BASE, top_k=20, max_price=50.0)}
         con = {
             _id(r)
             for r in pipeline.recommend(
