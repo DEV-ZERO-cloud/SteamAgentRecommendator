@@ -175,7 +175,7 @@ def is_recommendable(
         return False
     if dislike_penalty(game_tags, disliked_tags) >= 0.45:
         return False
-    if max_price > 0 and price > max_price:
+    if price > max_price:
         return False
     return True
 
